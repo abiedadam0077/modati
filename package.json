@@ -7,11 +7,13 @@
   "scripts": {
     "build": "node tools/build.mjs",
     "test": "node tools/run-tests.mjs",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.tests.json --noEmit"
   },
   "devDependencies": {
     "@minecraft/server": "2.5.0",
     "@minecraft/server-ui": "2.0.0",
+    "@types/node": "22.20.5",
+    "ajv": "8.20.0",
     "esbuild": "0.28.2",
     "typescript": "7.0.2"
   }
