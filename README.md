@@ -64,7 +64,7 @@ See [docs/RESEARCH.md](docs/RESEARCH.md) and [docs/TESTING.md](docs/TESTING.md) 
 
 * Not tested inside the game: this project was built without access to a Minecraft client or dedicated server.
   Verification was done with Mojang's official 1.26.0 JSON schemas, the TypeScript compiler against the official
-  2.5.0 typings, a Molang linter, a software model renderer and 46 automated tests that run the real scripts in a
+  2.5.0 typings, a Molang linter, a software model renderer and 51 automated tests that run the real scripts in a
   simulated world. See [docs/TESTING.md](docs/TESTING.md).
 * Items on belts/depots/arms are shown by entities holding the item; their exact on-screen orientation per item
   type could not be verified.
@@ -82,7 +82,7 @@ npm install
 pip install --user numpy soundfile   # only to regenerate the synthesized sounds (already in assets/sounds)
 python3 tools/sounds/generate_sounds.py
 node tools/build.mjs --previews      # packs -> build/, add-on -> release/, previews -> build/previews
-npm test                             # 46 tests (kinetics, machines, logistics, contraptions, trains, perf)
+npm test                             # 51 tests (kinetics, machines, logistics, contraptions, trains, perf)
 npm run typecheck
 ```
 

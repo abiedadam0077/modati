@@ -17,7 +17,7 @@ download hosts are not reachable from it). Everything below is what *was* verifi
 | **Molang lint**: balanced parentheses, `query.*`/`math.*` names against Mojang's official query list, variables read but never assigned, temp variables crossing expressions | pass (found and fixed: temp variables used across separate `pre_animation` entries) |
 | TypeScript type check of all scripts against the official `@minecraft/server` 2.5.0 / `@minecraft/server-ui` 2.0.0 typings | pass |
 
-## 2. Automated tests (`npm test`, 46 tests, all passing)
+## 2. Automated tests (`npm test`, 51 tests, all passing)
 
 The tests bundle the **real runtime scripts** with a simulated `@minecraft/server` whose block types, states,
 custom components and tick intervals are loaded from the generated behavior pack.
@@ -30,11 +30,12 @@ custom components and tick intervals are loaded from the generated behavior pack
 * `integration2.test.ts` (12): deployer item application, spout filling, fan washing, chute, funnel insert/extract,
   mechanical arm, hand crank, clutch with redstone, water wheel from flowing water, upward saw, rope-pulley elevator with contacts,
   mechanical piston with poles, train assembly + movement through a curve.
-* `units.test.ts` (9): orientation matrices, side-axis rotor roll for every facing, arm inverse kinematics (forward check),
-  inward crushing rule, Create timing formulas, recipes, hardness, content consistency (runtime ↔ packs).
+* `units.test.ts` (10): orientation matrices, side-axis rotor roll for every facing, side-shaft model/axis consistency for every facing,
+  arm inverse kinematics (forward check), inward crushing rule, Create timing formulas, recipes, hardness, content consistency (runtime ↔ packs).
+* `placement.test.ts` (4): smart placement — face-based axes, cog axis copying, drills facing away from power, `alt` selection, press axis, crank attachment.
 * `perf.test.ts` (2): see below.
 
-Bugs found by the tests and fixed during development: belt tick crash from a shadowed variable, mixer throttle, test-harness power handling.
+Bugs found by the tests/review and fixed during development: belt tick crash from a shadowed variable, side-shaft axis mismatch for east/west facings, Molang temp variables across expressions, schema issues (`map_color`, tag namespaces), test-harness power handling.
 
 ## 3. Performance measurements (Node.js 22 / V8, simulated world)
 
