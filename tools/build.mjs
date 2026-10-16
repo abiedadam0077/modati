@@ -221,14 +221,15 @@ function buildBlocks() {
     lang.set(`tile.craftoria:${b.id}.name`, b.name);
     report.blocks++;
   }
-  // belt flipbooks: tiers 1..4 forward, 5..8 backward (px per frame 1,2,4,8)
-  const steps = [1, 2, 4, 8];
+  // belt flipbooks: tiers 1..4 forward, 5..8 backward. Texture speed (px/tick) 0.5, 1, 2, 4 matches
+  // item speed rpm/480 blocks/tick for ~12, 24, 48, 96+ RPM (see logistics/belt.ts motionTier).
+  const tiers = [{ step: 1, tpf: 2 }, { step: 1, tpf: 1 }, { step: 2, tpf: 1 }, { step: 4, tpf: 1 }];
   for (let i = 0; i < 4; i++) {
     for (const [dirSign, m] of [[1, i + 1], [-1, i + 5]]) {
-      const { img } = icons.beltFlipbook(steps[i], dirSign);
+      const { img } = icons.beltFlipbook(tiers[i].step, dirSign);
       writeTex(img, path.join(RP, 'textures/blocks/craftoria', `belt_${m}.png`));
       terrain[`craftoria_belt_${m}`] = { textures: `textures/blocks/craftoria/belt_${m}` };
-      flipbooks.push({ flipbook_texture: `textures/blocks/craftoria/belt_${m}`, atlas_tile: `craftoria_belt_${m}`, ticks_per_frame: 1, blend_frames: false });
+      flipbooks.push({ flipbook_texture: `textures/blocks/craftoria/belt_${m}`, atlas_tile: `craftoria_belt_${m}`, ticks_per_frame: tiers[i].tpf, blend_frames: false });
     }
   }
   const still = icons.beltFlipbook(16, 1).img;

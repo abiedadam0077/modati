@@ -270,7 +270,10 @@ export function validate(BP, RP) {
     if (!found) errors.push(`feature rule places missing feature ${pf}`);
   }
 
-  // 9. schema validation (optional)
+  // 9. molang lint
+  errors.push(...lintMolang(BP, RP));
+
+  // 10. schema validation (optional)
   const schemaRoot = process.env.CRAFTORIA_SCHEMAS || '/tmp/bs1260/metadata/json_schemas';
   if (fs.existsSync(schemaRoot)) schemaValidate(schemaRoot, BP, J, errors, warnings);
   else warnings.push('Mojang JSON schemas not found: schema validation skipped');
@@ -329,4 +332,68 @@ function schemaValidate(root, BP, J, errors, warnings) {
     warnings.push(`item schema validation skipped: ${e.message}`);
   }
   warnings.push(`schema-validated ${checked} block/item component sets against Mojang 1.26.0 schemas`);
+}
+
+// ------------------------------------------------------------------ Molang lint
+export function lintMolang(BP, RP) {
+  const errors = [];
+  const queries = new Set(fs.readFileSync(path.join(ROOT, 'tools/data/molang_queries.txt'), 'utf8').split('\n').filter(Boolean));
+  const maths = new Set(fs.readFileSync(path.join(ROOT, 'tools/data/molang_math.txt'), 'utf8').split('\n').filter(Boolean));
+  const exprs = []; // {where, text, entity}
+  const add = (where, text, entity) => {
+    if (typeof text === 'string' && /[a-z]\.[a-z_]/i.test(text)) exprs.push({ where, text, entity });
+  };
+  const visit = (x, where, entity) => {
+    if (typeof x === 'string') add(where, x, entity);
+    else if (Array.isArray(x)) x.forEach((y, i) => visit(y, `${where}[${i}]`, entity));
+    else if (x && typeof x === 'object') for (const [k, v] of Object.entries(x)) visit(v, `${where}.${k}`, entity);
+  };
+  for (const f of walk(path.join(RP, 'animations'))) {
+    const j = JSON.parse(fs.readFileSync(f, 'utf8'));
+    for (const [name, a] of Object.entries(j.animations ?? {})) {
+      visit(a.bones ?? {}, name, name);
+      if (a.anim_time_update) add(`${name}.anim_time_update`, a.anim_time_update, name);
+    }
+  }
+  const entityVars = new Map(); // entity id -> assigned variables
+  for (const f of walk(path.join(RP, 'entity'))) {
+    const d = JSON.parse(fs.readFileSync(f, 'utf8'))['minecraft:client_entity'].description;
+    const sc = d.scripts ?? {};
+    for (const k of ['initialize', 'pre_animation']) for (const e of sc[k] ?? []) add(`${d.identifier}.${k}`, e, d.identifier);
+    visit(sc.animate ?? [], `${d.identifier}.animate`, d.identifier);
+    const assigned = new Set();
+    for (const k of ['initialize', 'pre_animation']) for (const e of sc[k] ?? []) for (const m of e.matchAll(/\b(?:v|variable)\.([a-z_0-9]+)\s*=(?!=)/gi)) assigned.add(m[1]);
+    entityVars.set(d.identifier, { assigned, anims: Object.values(d.animations ?? {}) });
+  }
+  for (const f of walk(path.join(RP, 'render_controllers'))) {
+    const j = JSON.parse(fs.readFileSync(f, 'utf8'));
+    visit(j.render_controllers, path.basename(f), null);
+  }
+  for (const f of walk(path.join(BP, 'blocks'))) {
+    const j = JSON.parse(fs.readFileSync(f, 'utf8'))['minecraft:block'];
+    for (const p of j.permutations ?? []) add(`${j.description.identifier}.condition`, p.condition, null);
+    const g = j.components['minecraft:geometry'];
+    if (g && typeof g === 'object') visit(g.bone_visibility ?? {}, `${j.description.identifier}.bone_visibility`, null);
+  }
+  // which variables does each animation read? they must be assigned by the entity scripts or inside the expression
+  const animEntity = new Map();
+  for (const [eid, info] of entityVars) for (const a of info.anims) animEntity.set(a, eid);
+  for (const { where, text, entity } of exprs) {
+    let depth = 0;
+    for (const ch of text) {
+      if (ch === '(') depth++;
+      if (ch === ')') depth--;
+      if (depth < 0) break;
+    }
+    if (depth !== 0) errors.push(`molang ${where}: unbalanced parentheses`);
+    for (const m of text.matchAll(/\b(?:q|query)\.([a-z_0-9]+)/gi)) if (!queries.has(m[1].toLowerCase())) errors.push(`molang ${where}: unknown query ${m[1]}`);
+    for (const m of text.matchAll(/\bmath\.([a-z_0-9]+)/gi)) if (!maths.has(m[1].toLowerCase())) errors.push(`molang ${where}: unknown math function ${m[1]}`);
+    if (/\b(?:t|temp)\.[a-z]/i.test(text) && !/\b(?:t|temp)\.([a-z_0-9]+)\s*=(?!=)/i.test(text)) errors.push(`molang ${where}: temp variable read without assignment in the same expression`);
+    const eid = entity && (entityVars.has(entity) ? entity : animEntity.get(entity));
+    if (eid) {
+      const assigned = new Set([...entityVars.get(eid).assigned, ...[...text.matchAll(/\b(?:v|variable)\.([a-z_0-9]+)\s*=(?!=)/gi)].map((m) => m[1])]);
+      for (const m of text.matchAll(/\b(?:v|variable)\.([a-z_0-9]+)/gi)) if (!assigned.has(m[1])) errors.push(`molang ${where}: variable v.${m[1]} is never assigned`);
+    }
+  }
+  return errors;
 }

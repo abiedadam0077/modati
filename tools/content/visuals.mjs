@@ -81,13 +81,13 @@ export function rotorClient(models) {
         scripts: {
           initialize: ['v.mix = 0.0;', 'v.dep = 0.0;', 'v.ay = 0.0;', 'v.al = 0.0;', 'v.au = 0.0;', 'v.ah = 0.0;', 'v.g = 0.0;', 'v.rope = 0.0;'],
           pre_animation: [
-            't.dir = q.property(\'craftoria:dir\');',
-            'v.ox = t.dir == 0 ? 180 : (t.dir == 2 ? -90 : (t.dir == 3 ? 90 : 0));',
-            'v.oz = t.dir == 4 ? -90 : (t.dir == 5 ? 90 : 0);',
+            'v.dir = q.property(\'craftoria:dir\');',
+            'v.ox = v.dir == 0 ? 180 : (v.dir == 2 ? -90 : (v.dir == 3 ? 90 : 0));',
+            'v.oz = v.dir == 4 ? -90 : (v.dir == 5 ? 90 : 0);',
             'v.t = (math.mod(q.time_stamp, 72000) + q.frame_alpha) / 20;',
             'v.a1 = math.mod(q.property(\'craftoria:phase\') + v.t * q.property(\'craftoria:speed\') * 6, 360);',
             'v.a2 = math.mod(q.property(\'craftoria:phase\') + v.t * q.property(\'craftoria:speed2\') * 6, 360);',
-            't.k = math.min(1, q.delta_time * 6);',
+            'v.k = math.min(1, q.delta_time * 6);',
           ],
           animate: [
             'base',
@@ -128,7 +128,7 @@ export function rotorRenderController(models) {
 }
 
 export function rotorAnimations() {
-  const k = (a, b) => `${a} = ${a} + (${b} - ${a}) * t.k;`;
+  const k = (a, b) => `${a} = ${a} + (${b} - ${a}) * v.k;`;
   return {
     format_version: '1.8.0',
     animations: {
@@ -336,18 +336,18 @@ export function blockDisplayClient(texList, customGeos) {
         animations: { pose: 'animation.craftoria.block_display.pose' },
         scripts: {
           pre_animation: [
-            't.d = q.property(\'craftoria:dir\');',
-            'v.ox = t.d == 0 ? 180 : (t.d == 2 ? -90 : (t.d == 3 ? 90 : 0));',
-            'v.oz = t.d == 4 ? -90 : (t.d == 5 ? 90 : 0);',
-            't.b = q.property(\'craftoria:bdir\');',
-            'v.bx = t.b == 0 ? 180 : (t.b == 2 ? -90 : (t.b == 3 ? 90 : 0));',
-            'v.bz = t.b == 4 ? -90 : (t.b == 5 ? 90 : 0);',
+            'v.d = q.property(\'craftoria:dir\');',
+            'v.ox = v.d == 0 ? 180 : (v.d == 2 ? -90 : (v.d == 3 ? 90 : 0));',
+            'v.oz = v.d == 4 ? -90 : (v.d == 5 ? 90 : 0);',
+            'v.b = q.property(\'craftoria:bdir\');',
+            'v.bx = v.b == 0 ? 180 : (v.b == 2 ? -90 : (v.b == 3 ? 90 : 0));',
+            'v.bz = v.b == 4 ? -90 : (v.b == 5 ? 90 : 0);',
             // re-anchor client extrapolation whenever the server sends a new phase (angle)
-            't.now = q.time_stamp + q.frame_alpha;',
-            't.ph = q.property(\'craftoria:phase\');',
-            'v.tb = (v.lp != t.ph) ? t.now : v.tb;',
-            'v.lp = t.ph;',
-            'v.ang = math.mod(t.ph + (t.now - v.tb) / 20 * q.property(\'craftoria:speed\') * 6, 360);',
+            'v.now = q.time_stamp + q.frame_alpha;',
+            'v.ph = q.property(\'craftoria:phase\');',
+            'v.tb = (v.lp != v.ph) ? v.now : v.tb;',
+            'v.lp = v.ph;',
+            'v.ang = math.mod(v.ph + (v.now - v.tb) / 20 * q.property(\'craftoria:speed\') * 6, 360);',
           ],
           initialize: ['v.lp = -99999.0;', 'v.tb = 0.0;'],
           animate: ['pose'],
