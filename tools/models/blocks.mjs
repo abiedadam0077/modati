@@ -154,9 +154,14 @@ export const BLOCK_MODELS = {
     s.box([1.2, 9, -8], [8, 10, 8], 'iron');
     const mv = m.bone('moving', { pivot: [0, 8, 0] });
     sawBlade(mv);
-    // side shaft stubs along X
+    // side shaft stubs along X (alt = false)
     mv.box([-8.5, 3, -2], [-6, 7, 2], 'andesite', { detail: { west: 'center_dot' } });
     mv.box([6, 3, -2], [8.5, 7, 2], 'andesite', { detail: { east: 'center_dot' } });
+    // alt variant: blade turned 90deg, stubs along Z
+    const alt = m.bone('moving_alt', { pivot: [0, 8, 0], rotation: { axis: 'y', angle: 90 } });
+    sawBlade(alt);
+    alt.box([-8.5, 3, -2], [-6, 7, 2], 'andesite', { detail: { west: 'center_dot' } });
+    alt.box([6, 3, -2], [8.5, 7, 2], 'andesite', { detail: { east: 'center_dot' } });
     return m;
   },
   deployer() {
@@ -165,10 +170,14 @@ export const BLOCK_MODELS = {
     casing(s, [-8, 0, -8], [8, 12, 8], { faces: ['north', 'south', 'down'], margin: 2 });
     s.box([-8.01, 2, -8.01], [8.01, 4, 8.01], 'brass', { hide: ['up', 'down'] });
     s.box([-5, 12, -5], [5, 13, 5], 'brass_dark');
+    const hand = m.bone('hand', { pivot: [0, 8, 0] });
+    deployerHand(hand, 0);
     const mv = m.bone('moving', { pivot: [0, 8, 0] });
     mv.box([-8.5, 4, -2], [-6, 8, 2], 'andesite', { detail: { west: 'center_dot' } });
     mv.box([6, 4, -2], [8.5, 8, 2], 'andesite', { detail: { east: 'center_dot' } });
-    deployerHand(mv, 0);
+    const alt = m.bone('moving_alt', { pivot: [0, 8, 0] });
+    alt.box([-2, 4, -8.5], [2, 8, -6], 'andesite', { detail: { north: 'center_dot' } });
+    alt.box([-2, 4, 6], [2, 8, 8.5], 'andesite', { detail: { south: 'center_dot' } });
     return m;
   },
   mechanical_arm() {
@@ -227,6 +236,9 @@ export const BLOCK_MODELS = {
     const mv = m.bone('moving', { pivot: [0, 8, 0] });
     mv.box([-8.5, 4, -2], [-6, 8, 2], 'andesite', { detail: { west: 'center_dot' } });
     mv.box([6, 4, -2], [8.5, 8, 2], 'andesite', { detail: { east: 'center_dot' } });
+    const alt = m.bone('moving_alt', { pivot: [0, 8, 0] });
+    alt.box([-2, 4, -8.5], [2, 8, -6], 'andesite', { detail: { north: 'center_dot' } });
+    alt.box([-2, 4, 6], [2, 8, 8.5], 'andesite', { detail: { south: 'center_dot' } });
     return m;
   },
   piston_pole() {

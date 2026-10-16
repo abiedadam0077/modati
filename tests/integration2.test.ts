@@ -173,7 +173,7 @@ test('mechanical piston pushes a glued structure using its poles', () => {
   near(100, 3, 0);
   dim.put(v(99, 1, 0), 'craftoria:piston_pole', { 'craftoria:axis': 'x' });
   dim.put(v(98, 1, 0), 'craftoria:piston_pole', { 'craftoria:axis': 'x' });
-  dim.put(v(100, 1, 0), 'craftoria:mechanical_piston', { 'craftoria:facing': 'east' });
+  dim.put(v(100, 1, 0), 'craftoria:mechanical_piston', { 'craftoria:facing': 'east', 'craftoria:alt': true }); // side shafts along Z
   dim.put(v(101, 1, 0), 'minecraft:oak_planks');
   useGlue(player as never, dim.getBlock(v(101, 1, 0)) as never);
   useGlue(player as never, dim.getBlock(v(101, 1, 0)) as never);

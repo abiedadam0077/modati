@@ -127,3 +127,26 @@ test('content consistency between runtime definitions and the generated packs', 
   for (const r of [...MILLING, ...CRUSHING, ...PRESSING]) for (const o of r.out) if (o.id.startsWith('craftoria:')) assert.ok(blocks.has(o.id) || fs.existsSync(path.join(bp, 'items', `${o.id.split(':')[1]}.json`)), o.id);
   void (DIRS as Dir[]);
 });
+
+test('side-shaft block models: transformation puts the modelled stubs on the kinetic shaft axis', () => {
+  // facing6 block transformations used by tools/build.mjs (RH world rotations, degrees)
+  const T: Record<string, [number, number, number]> = { up: [0, 0, 0], down: [180, 0, 0], north: [-90, 0, 0], south: [90, 0, 0], east: [0, 0, -90], west: [0, 0, 90] };
+  const rot = (v: number[], [rx, , rz]: [number, number, number]) => {
+    let [x, y, z] = v;
+    const ax = (rx * Math.PI) / 180, az = (rz * Math.PI) / 180;
+    [y, z] = [y * Math.cos(ax) - z * Math.sin(ax), y * Math.sin(ax) + z * Math.cos(ax)];
+    [x, y] = [x * Math.cos(az) - y * Math.sin(az), x * Math.sin(az) + y * Math.cos(az)];
+    return [x, y, z].map((n) => Math.round(n));
+  };
+  for (const f of DIRS) {
+    for (const alt of [false, true]) {
+      const stub = alt ? [0, 0, 1] : [1, 0, 0];
+      const w = rot(stub, T[f]);
+      const axis = w[0] ? 'x' : w[1] ? 'y' : 'z';
+      assert.equal(axis, sideAxis(f, alt), `${f} alt=${alt}`);
+      // and the facing itself is where +Y goes
+      const front = rot([0, 1, 0], T[f]);
+      assert.deepEqual(front, [DIR_VEC[f].x, DIR_VEC[f].y, DIR_VEC[f].z]);
+    }
+  }
+});

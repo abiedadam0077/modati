@@ -24,13 +24,15 @@ export function facingOf(st: States): Dir {
   return (typeof f === 'string' && f in DIR_AXIS ? f : 'north') as Dir;
 }
 
-/** Shaft axis perpendicular to a facing (saw / deployer / piston style blocks). */
+/**
+ * Shaft axis of side-shaft blocks (saw / deployer / piston). The models carry their side shafts along
+ * authored X (alt = false) or authored Z (alt = true); this returns where the block transformation of
+ * each facing puts them: up/down keep X/Z, north/south map Z to Y, east/west map X to Y.
+ */
 export function sideAxis(f: Dir, alt: boolean): Axis {
   if (f === 'up' || f === 'down') return alt ? 'z' : 'x';
-  const a = DIR_AXIS[f];
-  // horizontal facing: the other horizontal axis, or vertical when alt
-  if (alt) return 'y';
-  return a === 'x' ? 'z' : 'x';
+  if (f === 'north' || f === 'south') return alt ? 'y' : 'x';
+  return alt ? 'z' : 'y';
 }
 
 function node(p: Partial<KNodeSpec> & { axis: Axis }): KNodeSpec {
