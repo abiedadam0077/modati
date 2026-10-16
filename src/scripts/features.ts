@@ -30,6 +30,22 @@ export function featureItemUse(source: Player, item: ItemStack | undefined): voi
   if (item) itemUse(source, item);
 }
 
+// first join: hand out the Engineer's Manual once per player
+world.afterEvents.playerSpawn.subscribe((e) => {
+  if (!e.initialSpawn) return;
+  const p = e.player;
+  system.runTimeout(() => {
+    try {
+      if (p.getDynamicProperty('cr:manual')) return;
+      p.setDynamicProperty('cr:manual', true);
+      p.getComponent('minecraft:inventory')?.container?.addItem(new ItemStack('craftoria:engineers_manual', 1));
+      p.sendMessage("§6[CRAFTORIA] §fWelcome! Open the §eEngineer's Manual§f to learn about kinetic machines.");
+    } catch {
+      /* ignore */
+    }
+  }, 40);
+});
+
 world.afterEvents.entityLoad.subscribe((e) => {
   try {
     if (e.entity.typeId === ITEM_DISPLAY) system.run(() => adoptDisplay(e.entity));

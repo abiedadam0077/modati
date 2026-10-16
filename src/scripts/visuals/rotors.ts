@@ -102,7 +102,8 @@ export function rotorConfig(typeId: string, st: States, pos: V3, info: RotorInfo
     const want = sideAxis(facingOf(st), !!st[S_ALT]);
     roll = localAxisSign(dir, 0, 'x', want) !== 0 ? 0 : 90;
   }
-  const speedSign = localAxisSign(dir, roll, local, node.axis) || 1;
+  // gearbox stubs spin about their own outward normals (signs baked into the model bones)
+  const speedSign = typeId === ID('gearbox') ? 1 : localAxisSign(dir, roll, local, node.axis) || 1;
   let phase = 0;
   if (info.phase) {
     const a = node.axis;

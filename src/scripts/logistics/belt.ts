@@ -48,8 +48,24 @@ export interface BeltInfo {
   key: string;
 }
 
-/** Locate the belt containing a segment (walks to the start segment). */
+// cache: segment key -> belt info (re-validated every 40 ticks, cleared on placement / break)
+const infoCache = new Map<string, { info: BeltInfo; t: number }>();
+export function invalidateBeltCache(): void {
+  infoCache.clear();
+}
+
+/** Locate the belt containing a segment (cached). */
 export function beltOf(dim: Dimension, seg: V3): BeltInfo | undefined {
+  const k = dimKey(dim.id, seg);
+  const c = infoCache.get(k);
+  if (c && now() - c.t < 40) return c.info;
+  const info = beltOfUncached(dim, seg);
+  if (info) infoCache.set(k, { info, t: now() });
+  else infoCache.delete(k);
+  return info;
+}
+
+function beltOfUncached(dim: Dimension, seg: V3): BeltInfo | undefined {
   const b = blockAt(dim, seg);
   if (!b || b.typeId !== BELT) return undefined;
   const st = getStates(b);
@@ -438,6 +454,7 @@ export function useBeltConnector(p: Player, b: Block): boolean {
       logError('belt place', e);
     }
   }
+  invalidateBeltCache();
   consumeHeld(p, cost);
   sound(dim, 'craftoria.wrench', b.center(), 0.6, 0.8);
   msg(p, `§aBelt placed (${len} blocks).`);
@@ -446,6 +463,7 @@ export function useBeltConnector(p: Player, b: Block): boolean {
 
 /** Remove an entire belt when one segment is broken: pulleys become shafts again. */
 function breakBelt(dimId: string, pos: V3, axis: Axis): void {
+  invalidateBeltCache();
   const dim = dimension(dimId);
   const [neg, posD] = runDirs(axis);
   const segs: V3[] = [];

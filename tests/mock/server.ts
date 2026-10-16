@@ -459,7 +459,7 @@ export const world = {
     return [...dynProps.keys()];
   },
   afterEvents: {
-    entityLoad: new Signal(), worldLoad: new Signal(), playerPlaceBlock: new Signal(), playerBreakBlock: new Signal(), itemUse: new Signal(),
+    entityLoad: new Signal(), worldLoad: new Signal(), playerSpawn: new Signal(), playerPlaceBlock: new Signal(), playerBreakBlock: new Signal(), itemUse: new Signal(),
   },
   beforeEvents: { playerInteractWithBlock: new Signal(), itemUse: new Signal() },
 };
