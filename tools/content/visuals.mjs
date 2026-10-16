@@ -19,7 +19,7 @@ function inanimateComponents(extra = {}) {
     'minecraft:health': { value: 20, max: 20 },
     'minecraft:knockback_resistance': { value: 1 },
     'minecraft:fire_immune': {},
-    'minecraft:breathable': { breathes_air: true, breathes_water: true, breathes_lava: true, breathes_solids: true, total_supply: 15, suffocate_time: 0 },
+    'minecraft:breathable': { breathes_air: true, breathes_water: true, breathes_lava: true, breathes_solids: true },
     'minecraft:persistent': {},
     'minecraft:nameable': { always_show: false, allow_name_tag_renaming: false },
     ...extra,
@@ -214,7 +214,7 @@ export function itemDisplayBehavior() {
           'craftoria:mode': prop('int', [0, 3], 0),
         },
       },
-      components: inanimateComponents({ 'minecraft:equipment': {} }),
+      components: inanimateComponents(),
     },
   };
 }
@@ -312,7 +312,7 @@ export function blockDisplayBehavior() {
           'craftoria:oz': prop('float', [-1024, 1024], 0),
         },
       },
-      components: inanimateComponents({ 'minecraft:equipment': {} }),
+      components: inanimateComponents(),
     },
   };
 }
@@ -440,7 +440,7 @@ export function seatBehavior() {
           interact_text: 'action.interact.ride.craftoria_seat',
           pull_in_entities: false,
           crouching_skip_interact: true,
-          seats: [{ position: [0, 0.1, 0], lock_rider_rotation: 0 }],
+          seats: [{ position: [0, 0.1, 0] }],
         },
         'minecraft:collision_box': { width: 0.6, height: 0.3 },
       }),

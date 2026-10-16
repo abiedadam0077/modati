@@ -349,7 +349,11 @@ export class Dimension {
     const old = this._cells.get(k);
     if (perm.type.id === 'minecraft:air') this._cells.delete(k);
     else {
-      const cell: Cell = { perm, container: old && old.perm.type.id === perm.type.id ? old.container : CONTAINERS.has(perm.type.id) ? new Container(perm.type.id === 'minecraft:hopper' ? 5 : 27) : undefined };
+      const cell: Cell = {
+        perm,
+        container: old && old.perm.type.id === perm.type.id ? old.container : CONTAINERS.has(perm.type.id) ? new Container(perm.type.id === 'minecraft:hopper' ? 5 : 27) : undefined,
+        power: old?.power,
+      };
       this._cells.set(k, cell);
     }
     if (!fireEvents) return;

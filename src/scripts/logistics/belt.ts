@@ -3,7 +3,7 @@
 // Item speed follows Create (MIT): blocks per tick = rpm / 480.
 import { Block, Dimension, Player } from '@minecraft/server';
 import { AXIS_DIRS, Axis, DIR_VEC, Dir, OPPOSITE, V3, dimKey, offset, parseDimKey, posKey } from '../util/vec';
-import { blockAt, dimension, getStates, msg, setStates, logError } from '../core/env';
+import { blockAt, dimension, getStates, msg, setStates, logError, now } from '../core/env';
 import { BlockStore } from '../core/store';
 import { ID, S_AXIS, S_PART } from '../kinetics/defs';
 import { markTopologyDirty, onSpeedChange, speedOf } from '../kinetics/network';
@@ -210,7 +210,7 @@ function tickBelt(b: Block, key: string): boolean {
   const sgn = dirSign(info, rpm);
   const v = (Math.abs(rpm) / 480) * sgn;
   const near = nearAnyPlayer(dim.id, info.start, 48);
-  const now = Date.now();
+  const nowMs = Date.now();
   let changed = false;
   if (v !== 0 && d.items.length) {
     // move items in order of travel so the front one moves first
@@ -258,14 +258,14 @@ function tickBelt(b: Block, key: string): boolean {
   // decay temporary holds
   for (const it of d.items) if (it.hold && it.hold > 0 && it.hold < Number.MAX_SAFE_INTEGER) it.hold--;
   // absorb dropped items and carry entities
-  absorbAndCarry(info, d, v);
+  if (now() % 2 === 0) absorbAndCarry(info, d, v * 2);
   if (near) for (const it of d.items) showItem(`${info.key}#b${it.id}`, dim, worldAt(info, it.p), it.s.id, 0.5, 0);
   else hidePrefix(`${info.key}#b`);
   updateBeltMotion(info, rpm);
   if (changed) {
     const rt = runtime.get(key) ?? { lastSave: 0 };
-    if (now - rt.lastSave > 2000) {
-      rt.lastSave = now;
+    if (nowMs - rt.lastSave > 2000) {
+      rt.lastSave = nowMs;
       runtime.set(key, rt);
       save(info, d);
     } else store.set(info.key, d); // in-memory update; flushed by the store task

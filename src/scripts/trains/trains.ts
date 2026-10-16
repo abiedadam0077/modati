@@ -660,3 +660,11 @@ export function sweepSeats(): void {
 }
 
 export { posKey, inGlue, Entity };
+
+/** Test / command hooks */
+export function _trains(): Map<number, Train> {
+  return trains;
+}
+export function _assembleTrain(st: Block, p: Player): void {
+  assembleTrain(st, p);
+}

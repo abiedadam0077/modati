@@ -142,6 +142,10 @@ export function loadContraptions(): void {
       // interrupted linear motion: settle at the nearest whole block on next tick
       c.target = Math.round(c.move);
     }
+    if (c.kind === 'windmill') {
+      const cfg = bearingCfg.get(dimKey(c.dim, c.owner));
+      setWindmillSpeed(c.dim, c.owner, windmillRpm(c.sails ?? 0) * (cfg?.cw ? -1 : 1));
+    }
   }
   // remove stale display entities; they are respawned from data
   system.runTimeout(() => {

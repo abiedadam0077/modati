@@ -271,7 +271,7 @@ export function tickRotorLOD(): void {
   }
   let spawned = 0;
   for (const k of want) {
-    if (rotors.has(k)) continue;
+    if (rotorAt(k)) continue;
     if (spawned >= MAX_SPAWN_PER_PASS) break;
     if (spawnRotor(k)) spawned++;
   }
