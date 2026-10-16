@@ -888,6 +888,18 @@ export function tickContraptions(): void {
   }
 }
 
+/** Entities loaded with a chunk that do not belong to a live contraption are removed (they are respawned from data). */
+export function adoptBlockDisplay(e: Entity): void {
+  try {
+    const cid = e.getDynamicProperty('cr:c') as number | undefined;
+    if (cid === undefined) return; // train displays are handled by trains.ts
+    const c = contraptions.get(cid);
+    if (!c || !c.ents.includes(e.id)) e.remove();
+  } catch {
+    /* ignore */
+  }
+}
+
 /** periodic: rope visuals for idle pulleys */
 export function refreshPulleyRopes(): void {
   for (const k of pulleyStore.loadedKeys()) setRope(k, pulleyStore.get(k)?.len ?? 0);

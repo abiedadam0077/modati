@@ -661,6 +661,18 @@ export function sweepSeats(): void {
 
 export { posKey, inGlue, Entity };
 
+/** Remove stale train entities loaded from disk (live trains keep their own entity ids). */
+export function adoptTrainEntity(e: Entity): void {
+  try {
+    const tid = e.getDynamicProperty('cr:t') as number | undefined;
+    if (tid === undefined) return;
+    const t = trains.get(tid);
+    if (!t || (!t.ents.includes(e.id) && !t.seats.some((s) => s.id === e.id))) e.remove();
+  } catch {
+    /* ignore */
+  }
+}
+
 /** Test / command hooks */
 export function _trains(): Map<number, Train> {
   return trains;

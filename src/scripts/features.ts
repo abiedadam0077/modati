@@ -10,8 +10,8 @@ import { tickBelts } from './logistics/belt';
 import { tickChutes } from './logistics/chute_funnel';
 import { tickArms } from './logistics/arm';
 import { tickFluids } from './fluids/fluids';
-import { loadContraptions, loadGlue, saveContraptions, showGlue, tickContraptions, refreshPulleyRopes } from './contraptions/contraption';
-import { loadTrains, periodicTrainSave, sweepSeats, tickTrains } from './trains/trains';
+import { loadContraptions, loadGlue, saveContraptions, showGlue, tickContraptions, refreshPulleyRopes, adoptBlockDisplay } from './contraptions/contraption';
+import { loadTrains, periodicTrainSave, sweepSeats, tickTrains, adoptTrainEntity } from './trains/trains';
 import { gaugeValue, itemUse, tickGoggles } from './items/tools';
 import { adoptDisplay, removeOrphanDisplays, sweepDisplays, ITEM_DISPLAY } from './visuals/displays';
 import { allRotorKeys, rotorAt, ROTOR_PROPS } from './visuals/rotors';
@@ -48,7 +48,10 @@ world.afterEvents.playerSpawn.subscribe((e) => {
 
 world.afterEvents.entityLoad.subscribe((e) => {
   try {
-    if (e.entity.typeId === ITEM_DISPLAY) system.run(() => adoptDisplay(e.entity));
+    const ent = e.entity;
+    if (ent.typeId === ITEM_DISPLAY) system.run(() => adoptDisplay(ent));
+    else if (ent.typeId === 'craftoria:block_display') system.run(() => (adoptBlockDisplay(ent), adoptTrainEntity(ent)));
+    else if (ent.typeId === 'craftoria:seat_entity') system.run(() => adoptTrainEntity(ent));
   } catch {
     /* ignore */
   }

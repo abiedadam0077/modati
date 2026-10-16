@@ -144,7 +144,7 @@ world.afterEvents.worldLoad.subscribe(() => {
 });
 
 // ---------------------------------------------------------------------------------------------
-every('networks', 1, () => processNetworks(3000));
+every('networks', 1, () => processNetworks(1500));
 every('cranks', 2, () => tickCranks());
 every('rotor_lod', 10, () => tickRotorLOD(), 3);
 every('rotor_validate', 100, () => validateRotors(), 7);
